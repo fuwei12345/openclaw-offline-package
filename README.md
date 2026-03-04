@@ -9,13 +9,13 @@
 </p>
 
 <p align="center">
-  <a href="../../releases">
+  <a href="https://github.com/openclaw/openclaw/releases">
     <img src="https://img.shields.io/github/v/release/openclaw/openclaw?label=Official&color=blue" alt="Official Version">
   </a>
-  <a href="../../releases">
-    <img src="https://img.shields.io/github/v/release/openclaw-offline-package/openclaw-offline-package?label=Offline%20Package" alt="Offline Package Version">
+  <a href="https://github.com/StanleyChanH/openclaw-offline-package/releases">
+    <img src="https://img.shields.io/github/v/release/StanleyChanH/openclaw-offline-package?label=Offline%20Package&color=green" alt="Offline Package Version">
   </a>
-  <img src="https://img.shields.io/github/actions/workflow/status/openclaw-offline-package/openclaw-offline-package/build-release.yml?label=Auto%20Sync" alt="Build Status">
+  <img src="https://img.shields.io/github/actions/workflow/status/StanleyChanH/openclaw-offline-package/build-release.yml?label=Auto%20Sync&color=brightgreen" alt="Build Status">
 </p>
 
 ---
@@ -58,7 +58,7 @@ npm install -g openclaw
 
 ## 📦 下载安装
 
-1. 前往 [**Releases**](../../releases) 页面
+1. 前往 [**Releases**](https://github.com/StanleyChanH/openclaw-offline-package/releases) 页面
 2. 下载最新版本的 `openclaw-offline-package-vX.X.X.zip`
 3. 解压到任意目录（建议路径不含中文和空格）
 4. 按下方步骤操作
