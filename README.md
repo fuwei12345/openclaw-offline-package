@@ -47,12 +47,54 @@ npm install -g openclaw
 
 本仓库通过 GitHub Actions **自动检测并同步** [OpenClaw 官方版本](https://github.com/openclaw/openclaw)：
 
-- ⏰ **每小时检查** - 自动检测 npm 上的最新版本
+- ▶️ **手动触发** - 需要时手动构建最新离线包
 - 🤖 **自动构建** - 检测到新版本时自动打包
 - 📦 **自动发布** - Release 与官方版本号保持一致
 - 🔒 **SHA256 校验** - 每个包都提供完整性校验
 
-**你永远可以在这里获取到最新版本的 OpenClaw！**
+**适合公开仓库和私有仓库按需构建使用。**
+
+### 私有仓库建议
+
+如果你打算把这个仓库改成私有仓库，建议保持当前这种**仅手动触发**的方式，不要恢复定时任务。
+
+原因：
+
+- 私有仓库下，GitHub Actions 会消耗账号套餐的免费额度
+- 本项目的主构建在 `windows-latest` 上执行，成本高于普通 Linux 任务
+- 手动触发更适合“需要时才打一个新包”的场景
+
+### 一键触发构建
+
+你有两种方式可以一键触发构建。
+
+#### 方式 1：GitHub 网页点击触发
+
+1. 打开你的仓库 `Actions` 页面
+2. 点击左侧工作流：`Build and Release Offline Package`
+3. 点击右侧：`Run workflow`
+4. 选择分支 `master`
+5. 点击绿色按钮确认
+
+#### 方式 2：本地一条命令触发
+
+如果本地电脑装了 GitHub CLI，并且已经登录 GitHub，可以直接执行：
+
+```cmd
+gh workflow run "Build and Release Offline Package" --repo 你的用户名/openclaw-offline-package
+```
+
+例如：
+
+```cmd
+gh workflow run "Build and Release Offline Package" --repo fuwei12345/openclaw-offline-package
+```
+
+执行后，可以用下面的命令查看运行状态：
+
+```cmd
+gh run list --repo 你的用户名/openclaw-offline-package --limit 5
+```
 
 ---
 

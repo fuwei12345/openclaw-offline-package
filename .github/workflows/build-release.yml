@@ -3,13 +3,6 @@ name: Build and Release Offline Package
 on:
   # 手动触发
   workflow_dispatch:
-  # 定时检查，每小时一次
-  schedule:
-    - cron: '0 * * * *'
-  # 接收来自上游仓库的 webhook 触发
-  repository_dispatch:
-    types:
-      - openclaw-release
 
 jobs:
   check-version:
