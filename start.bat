@@ -80,8 +80,8 @@ if errorlevel 1 (
 )
 
 echo.
-echo Running OpenClaw onboarding...
-"%NODE_EXE%" "%OPENCLAW_JS%" onboard --install-daemon
+echo Running OpenClaw onboarding (manual startup mode)...
+"%NODE_EXE%" "%OPENCLAW_JS%" onboard
 goto :end
 
 :do_pass

@@ -43,3 +43,4 @@ package-lock.json
 # Old docs
 *.md
 !README.md
+!examples/*.md

@@ -89,8 +89,15 @@ CertUtil -hashfile openclaw-offline-package-vX.X.X.zip SHA256
 - ✅ 配置全局 `openclaw` 命令
 - ✅ 将安装目录添加到用户 PATH
 - ✅ 运行 OpenClaw 配置向导（选择 AI 模型等）
+- ✅ 保持为手动启动模式（**不会**自动安装后台守护/计划任务）
 
 > ⚠️ **注意**：首次配置需要联网进行 OAuth 认证。
+> 💡 **说明**：完成配置后，Gateway 需要你手动启动；默认不会在 Windows 登录后自动常驻运行。
+
+如果你使用的是 **本地 Ollama + 本地模型**，则**不一定需要联网**：
+
+- 使用云模型或需要 OAuth 的提供商时，首次配置需要联网
+- 使用 `Ollama Local` 并手动写配置文件时，可以完全离线
 
 ### 步骤 2️⃣：启动服务
 
@@ -102,6 +109,13 @@ CertUtil -hashfile openclaw-offline-package-vX.X.X.zip SHA256
 
 Gateway 将在 `http://127.0.0.1:18789` 运行。
 
+每次需要使用本地 Gateway 时，请重新运行一次 `02_启动服务.bat`。
+如果你更习惯命令行，也可以运行：
+
+```cmd
+start.bat start
+```
+
 ### 常用命令
 
 配置完成后，可在任意命令行使用：
@@ -110,7 +124,110 @@ Gateway 将在 `http://127.0.0.1:18789` 运行。
 openclaw --help      # 查看帮助
 openclaw doctor      # 运行诊断
 openclaw onboard     # 重新配置 AI 模型
+start.bat start      # 手动启动 Gateway
 ```
+
+---
+
+## 🧊 完全离线 + Ollama 本地模型
+
+如果目标电脑 **不能联网**，并且你准备使用本地部署的 Ollama 模型，推荐使用**手动配置**，不要依赖首次向导。
+
+给现场操作人员使用的详细步骤说明见：
+
+```text
+examples/OFFLINE_WINDOWS_OLLAMA_SETUP.md
+```
+
+### 适用前提
+
+- 目标电脑已安装并部署好 Ollama
+- 目标电脑上的模型已经提前准备好
+- `ollama serve` 可以正常运行
+- `ollama list` 可以看到你要用的模型
+
+> ⚠️ **注意**：离线环境下不能临时拉取模型，所以模型必须事先已经存在于目标电脑。
+
+### 步骤 1：设置 Ollama 环境变量
+
+在目标电脑运行一次：
+
+```cmd
+setx OLLAMA_API_KEY ollama-local
+```
+
+`OLLAMA_API_KEY` 对本地 Ollama 不需要真实密钥，任意非空值即可。
+
+### 步骤 2：手动创建 OpenClaw 配置文件
+
+将示例文件：
+
+```text
+examples/openclaw.ollama-local.example.json5
+```
+
+复制内容到目标电脑的：
+
+```text
+%USERPROFILE%\.openclaw\openclaw.json
+```
+
+然后修改其中这几项：
+
+- `agents.defaults.model.primary`：改成你实际存在的主模型名
+- `agents.defaults.model.fallbacks`：按需填入备用模型名
+
+例如你以后到本地电脑上，需要修改的就是这里：
+
+```json5
+model: {
+  primary: "ollama/把这里改成你的主模型名",
+  fallbacks: [
+    // "ollama/把这里改成你的备用模型名"
+  ],
+}
+```
+
+### 步骤 3：启动 Ollama
+
+确保目标电脑上的 Ollama 服务已经运行：
+
+```cmd
+ollama serve
+```
+
+### 步骤 4：手动启动 OpenClaw Gateway
+
+在离线包目录中运行：
+
+```cmd
+02_启动服务.bat
+```
+
+或者：
+
+```cmd
+start.bat start
+```
+
+### 多模型切换建议
+
+如果你会在 Ollama 里部署多个本地模型，建议：
+
+- 保持示例配置里的默认做法，不要额外设置 `agents.defaults.models`
+- 这样 OpenClaw 可以自动发现本地 Ollama 已有模型，后续切换更方便
+
+常用命令：
+
+```cmd
+start.bat models list
+start.bat models set ollama/<你的模型名>
+```
+
+说明：
+
+- `start.bat models list`：查看当前可用模型
+- `start.bat models set ollama/<你的模型名>`：切换默认模型
 
 ---
 
@@ -120,7 +237,7 @@ openclaw onboard     # 重新配置 AI 模型
 |------|------|
 | 操作系统 | Windows 10 / 11 (64-bit) |
 | 权限 | 普通用户权限即可 |
-| 网络 | 仅首次 OAuth 认证需要联网 |
+| 网络 | 云模型 / OAuth 首次配置需要联网；本地 Ollama 可离线 |
 
 ---
 
@@ -132,6 +249,7 @@ openclaw-offline-package/
 ├── 02_启动服务.bat    # 👈 配置完成后双击这个启动
 ├── start.bat          # 核心脚本（内部调用）
 ├── openclaw.bat       # openclaw 命令包装器（自动生成）
+├── examples/          # 离线配置示例和操作说明
 ├── package.json       # 依赖声明
 ├── node_modules/      # OpenClaw 及所有依赖（已打包）
 ├── nodejs/            # 内置 Node.js 运行时（已打包）
@@ -146,15 +264,17 @@ openclaw-offline-package/
 
 | 文件 | 说明 |
 |------|------|
-| `01_首次配置.bat` | 首次安装、配置 AI 模型 |
-| `02_启动服务.bat` | 启动 Gateway 服务 |
+| `01_首次配置.bat` | 首次安装、配置 AI 模型，不安装后台守护 |
+| `02_启动服务.bat` | 手动启动 Gateway 服务 |
 | `start.bat` | 核心脚本，支持更多命令 |
+| `examples/` | 离线 Ollama 配置模板和详细操作说明 |
 | `openclaw` | 全局命令（配置后可在任意位置使用） |
 
 ### 高级用法
 
 ```cmd
 start.bat <命令>       # 执行任意 openclaw 命令
+start.bat start        # 手动启动 Gateway
 start.bat doctor       # 运行诊断
 start.bat --help       # 查看帮助
 ```

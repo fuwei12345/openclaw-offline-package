@@ -1,0 +1,31 @@
+// Copy this file's contents to:
+// %USERPROFILE%\.openclaw\openclaw.json
+//
+// This example is for:
+// - Windows
+// - local-only Gateway mode
+// - local Ollama running on the same machine
+//
+// Important:
+// - Replace the placeholder model names with real names from `ollama list`
+// - This example intentionally does NOT set `agents.defaults.models`
+//   so OpenClaw can auto-discover local Ollama models for easier switching
+
+{
+  gateway: {
+    mode: "local",
+    port: 18789,
+  },
+
+  agents: {
+    defaults: {
+      model: {
+        primary: "ollama/REPLACE_WITH_PRIMARY_MODEL",
+        fallbacks: [
+          // "ollama/REPLACE_WITH_SECOND_MODEL",
+          // "ollama/REPLACE_WITH_THIRD_MODEL",
+        ],
+      },
+    },
+  },
+}

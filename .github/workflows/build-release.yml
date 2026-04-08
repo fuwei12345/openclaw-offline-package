@@ -111,6 +111,7 @@ jobs:
           Copy-Item -Path "$workDir\package.json" -Destination "$tempDir\" -Force
           Copy-Item -Path "$workDir\package-lock.json" -Destination "$tempDir\" -Force
           Copy-Item -Path "$workDir\*.bat" -Destination "$tempDir\" -Force
+          Copy-Item -Path "$workDir\examples" -Destination "$tempDir\examples" -Recurse -Force
           Copy-Item -Path "$workDir\README.md" -Destination "$tempDir\" -Force
           Copy-Item -Path "$workDir\.gitignore" -Destination "$tempDir\" -Force
 
