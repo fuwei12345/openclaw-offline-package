@@ -208,6 +208,14 @@ start.bat start      # 手动启动 Gateway
 examples/OFFLINE_WINDOWS_OLLAMA_SETUP.md
 ```
 
+该文档已经同时包含：
+
+- 首次离线部署步骤
+- 首次配置向导选项建议
+- 本地 Ollama 配置步骤
+- 日常手动操作步骤
+- 以后升级到新版本离线包的更新步骤
+
 ### 适用前提
 
 - 目标电脑已安装并部署好 Ollama
