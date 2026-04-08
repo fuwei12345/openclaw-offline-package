@@ -3,6 +3,11 @@ name: Build and Release Offline Package
 on:
   # 手动触发
   workflow_dispatch:
+    inputs:
+      openclaw_version:
+        description: 'Optional OpenClaw version to build (for example: 2026.4.7). Leave empty to use npm latest.'
+        required: false
+        type: string
 
 jobs:
   check-version:
@@ -14,10 +19,19 @@ jobs:
     steps:
       - name: Check for new release
         id: check
+        env:
+          REQUESTED_VERSION: ${{ github.event.inputs.openclaw_version }}
         run: |
-          # 获取上游最新版本
-          LATEST_VERSION=$(curl -s https://registry.npmjs.org/openclaw/latest | jq -r '.version')
-          echo "Latest version: $LATEST_VERSION"
+          REQUESTED_VERSION="$(echo "${REQUESTED_VERSION:-}" | xargs)"
+
+          if [ -n "$REQUESTED_VERSION" ]; then
+            TARGET_VERSION="$REQUESTED_VERSION"
+            echo "Requested version: $TARGET_VERSION"
+          else
+            # 获取上游最新版本
+            TARGET_VERSION=$(curl -s https://registry.npmjs.org/openclaw/latest | jq -r '.version')
+            echo "Latest version: $TARGET_VERSION"
+          fi
 
           # 获取当前仓库的最新 release 版本
           CURRENT_VERSION=$(curl -s \
@@ -27,13 +41,13 @@ jobs:
           echo "Current version: $CURRENT_VERSION"
 
           # 比较版本
-          if [ "$LATEST_VERSION" != "$CURRENT_VERSION" ]; then
+          if [ "$TARGET_VERSION" != "$CURRENT_VERSION" ]; then
             echo "should_build=true" >> $GITHUB_OUTPUT
-            echo "new_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
-            echo "New version detected: $LATEST_VERSION"
+            echo "new_version=$TARGET_VERSION" >> $GITHUB_OUTPUT
+            echo "Build target version: $TARGET_VERSION"
           else
             echo "should_build=false" >> $GITHUB_OUTPUT
-            echo "No new version"
+            echo "Target version already released: $TARGET_VERSION"
           fi
 
   build:
@@ -48,14 +62,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Download Node.js Windows binaries
         run: |
-          # 获取 Node.js 22.x 最新版本
+          # 获取 Node.js 24.x 最新版本
           $versions = Invoke-RestMethod -Uri "https://nodejs.org/dist/index.json"
-          $latest22 = $versions | Where-Object { $_.version -match "^v22\." } | Select-Object -First 1
-          $nodeVersion = $latest22.version
+          $latest24 = $versions | Where-Object { $_.version -match "^v24\." } | Select-Object -First 1
+          $nodeVersion = $latest24.version
           Write-Host "Downloading Node.js $nodeVersion for Windows..."
 
           # 下载 Node.js Windows ZIP
@@ -83,6 +97,21 @@ jobs:
           npm install --legacy-peer-deps
 
           Write-Host "OpenClaw $env:VERSION installed"
+
+      - name: Smoke check OpenClaw CLI
+        run: |
+          $nodeExe = "$PWD\nodejs\node.exe"
+          $openclawJs = "$PWD\node_modules\openclaw\openclaw.mjs"
+
+          if (!(Test-Path $nodeExe)) {
+            throw "Node.js executable not found: $nodeExe"
+          }
+
+          if (!(Test-Path $openclawJs)) {
+            throw "OpenClaw entrypoint not found: $openclawJs"
+          }
+
+          & $nodeExe $openclawJs --help
 
       - name: Create offline package
         env:

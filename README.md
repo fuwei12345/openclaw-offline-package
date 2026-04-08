@@ -74,7 +74,13 @@ npm install -g openclaw
 2. 点击左侧工作流：`Build and Release Offline Package`
 3. 点击右侧：`Run workflow`
 4. 选择分支 `master`
-5. 点击绿色按钮确认
+5. 按需填写 `openclaw_version`
+6. 点击绿色按钮确认
+
+`openclaw_version` 的规则：
+
+- 留空：自动构建 npm 上的最新 `openclaw` 版本
+- 填版本号：构建你指定的版本，例如 `2026.4.7`
 
 #### 方式 2：本地一条命令触发
 
@@ -90,11 +96,32 @@ gh workflow run "Build and Release Offline Package" --repo 你的用户名/openc
 gh workflow run "Build and Release Offline Package" --repo fuwei12345/openclaw-offline-package
 ```
 
+如果你想指定版本，例如构建 `2026.4.7`，可以执行：
+
+```cmd
+gh workflow run "Build and Release Offline Package" --repo fuwei12345/openclaw-offline-package -f openclaw_version=2026.4.7
+```
+
 执行后，可以用下面的命令查看运行状态：
 
 ```cmd
 gh run list --repo 你的用户名/openclaw-offline-package --limit 5
 ```
+
+### 为什么推荐保留“指定版本构建”
+
+如果你隔一两个月才更新一次，OpenClaw 上游可能已经连续发布了很多版本。
+
+此时最稳的策略是：
+
+1. 先手动指定一个明确版本构建
+2. 构建成功后再测试
+3. 确认没问题后，再决定是否升级到更高版本
+
+当前 workflow 也已经做了两项兼容性增强：
+
+- 构建运行时改为 `Node 24`
+- 安装完成后自动执行一次 `OpenClaw CLI --help` 的 smoke check
 
 ---
 
